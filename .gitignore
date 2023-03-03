@@ -1,0 +1,7 @@
+*~
+*.pyc
+*.pyo
+build*/
+cmake-build*/
+.conda/
+.idea/

@@ -1,0 +1,27 @@
+id: aggmux_hold_rewrite_tags_cc
+label: hold_rewrite_tags_cc
+category: '[aggmux]'
+
+templates:
+  imports: from gnuradio import aggmux
+  make: aggmux.hold_rewrite_tags_cc(${debug}, ${sid})
+
+
+parameters:
+- id: sid
+  label: sid
+  dtype: int
+  default: 0
+- id: debug
+  label: debug
+  dtype: bool
+  default: 'False'
+
+inputs:
+  - label: in
+    dtype: complex
+outputs:
+  - label: out
+    dtype: complex
+
+file_format: 1
