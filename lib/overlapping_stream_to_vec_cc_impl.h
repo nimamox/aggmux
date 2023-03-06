@@ -20,16 +20,15 @@ private:
     int d_overlap;
     long d_counter;
     int d_sid;
-    std::vector<gr_complex> d_circ_buffer;
-    int d_buf_ptr;
-    int d_buf_nitems;
+    int d_unconsumed;
+    std::deque<gr_complex> d_buf;
 
 public:
     overlapping_stream_to_vec_cc_impl(int vector_size, int overlap, bool debug, int sid);
     ~overlapping_stream_to_vec_cc_impl();
 
     // Where all the action really happens
-//    void forecast(int noutput_items, gr_vector_int& ninput_items_required);
+    void forecast(int noutput_items, gr_vector_int& ninput_items_required);
 
     int general_work(int noutput_items,
                      gr_vector_int& ninput_items,
