@@ -13,8 +13,8 @@
 /* If manual edits are made, the following tags should be modified accordingly.    */
 /* BINDTOOL_GEN_AUTOMATIC(0)                                                       */
 /* BINDTOOL_USE_PYGCCXML(0)                                                        */
-/* BINDTOOL_HEADER_FILE(overlapping_stream_to_vec_cc.h)                                        */
-/* BINDTOOL_HEADER_FILE_HASH(b5a0948cc8e95bfdbdc7497b962c5b42)                     */
+/* BINDTOOL_HEADER_FILE(overlapping_stream_to_vec_cc.h) */
+/* BINDTOOL_HEADER_FILE_HASH(cb60ae67476648f91a94d06ba62d69f4)                     */
 /***********************************************************************************/
 
 #include <pybind11/complex.h>
@@ -30,30 +30,22 @@ namespace py = pybind11;
 void bind_overlapping_stream_to_vec_cc(py::module& m)
 {
 
-    using overlapping_stream_to_vec_cc    = gr::aggmux::overlapping_stream_to_vec_cc;
+    using overlapping_stream_to_vec_cc = ::gr::aggmux::overlapping_stream_to_vec_cc;
 
 
-    py::class_<overlapping_stream_to_vec_cc, gr::block, gr::basic_block,
-        std::shared_ptr<overlapping_stream_to_vec_cc>>(m, "overlapping_stream_to_vec_cc", D(overlapping_stream_to_vec_cc))
+    py::class_<overlapping_stream_to_vec_cc,
+               gr::block,
+               gr::basic_block,
+               std::shared_ptr<overlapping_stream_to_vec_cc>>(
+        m, "overlapping_stream_to_vec_cc", D(overlapping_stream_to_vec_cc))
 
         .def(py::init(&overlapping_stream_to_vec_cc::make),
-           D(overlapping_stream_to_vec_cc,make)
-        )
-        
-
+             py::arg("vector_size") = 1024,
+             py::arg("overlap") = 1,
+             py::arg("debug") = false,
+             py::arg("sid") = 0,
+             D(overlapping_stream_to_vec_cc, make))
 
 
         ;
-
-
-
-
 }
-
-
-
-
-
-
-
-

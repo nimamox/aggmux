@@ -15,13 +15,12 @@
  */
 
 
-
- static const char *__doc_gr_aggmux_overlapping_stream_to_vec_cc = R"doc()doc";
-
-
- static const char *__doc_gr_aggmux_overlapping_stream_to_vec_cc_overlapping_stream_to_vec_cc = R"doc()doc";
+static const char* __doc_gr_aggmux_overlapping_stream_to_vec_cc = R"doc()doc";
 
 
- static const char *__doc_gr_aggmux_overlapping_stream_to_vec_cc_make = R"doc()doc";
+static const char*
+    __doc_gr_aggmux_overlapping_stream_to_vec_cc_overlapping_stream_to_vec_cc =
+        R"doc()doc";
 
-  
+
+static const char* __doc_gr_aggmux_overlapping_stream_to_vec_cc_make = R"doc()doc";

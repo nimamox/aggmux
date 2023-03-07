@@ -29,6 +29,6 @@ inputs:
     dtype: complex
 outputs:
   - label: out
-    dtype: complex
+    dtype: complex_vector
 
 file_format: 1

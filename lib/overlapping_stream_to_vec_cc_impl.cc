@@ -52,6 +52,8 @@ namespace gr {
             if ((int)d_buf.size() >= d_overlap) {
                 ninput_items_required[0] -= d_overlap;
             }
+            if (noutput_items <= 1)
+                ninput_items_required[0] = std::min(ninput_items_required[0], 8191);
             std::cout << "2forecast:" << noutput_items << "\t" << ninput_items_required[0]
                       << std::endl;
             std::cout << "********"<< std::endl;
