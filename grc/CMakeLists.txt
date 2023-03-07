@@ -8,5 +8,6 @@
 
 install(FILES
     aggmux_hold_rewrite_tags_cc.block.yml
-    aggmux_overlapping_stream_to_vec_cc.block.yml DESTINATION share/gnuradio/grc/blocks
+    aggmux_overlapping_stream_to_vec_cc.block.yml
+    aggmux_aggr_and_mux_vff.block.yml DESTINATION share/gnuradio/grc/blocks
 )

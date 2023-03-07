@@ -14,6 +14,7 @@ include(GrPlatform) #define LIB_SUFFIX
 list(APPEND aggmux_sources
     hold_rewrite_tags_cc_impl.cc
     overlapping_stream_to_vec_cc_impl.cc
+    aggr_and_mux_vff_impl.cc
 )
 
 set(aggmux_sources "${aggmux_sources}" PARENT_SCOPE)

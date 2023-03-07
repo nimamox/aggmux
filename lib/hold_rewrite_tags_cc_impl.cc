@@ -90,6 +90,7 @@ int hold_rewrite_tags_cc_impl::general_work(int noutput_items,
                     pmt::dict_ref(new_tag, pmt::intern("rx_freq"), pmt::PMT_NIL));
                 d_last_rate = pmt::to_double(
                     pmt::dict_ref(new_tag, pmt::intern("rx_rate"), pmt::PMT_NIL));
+                std::cout << d_counter << "\tHOLD NEW TAG SENT!\t new freq: " << d_last_freq << std::endl;
                 add_item_tag(0, nitems_written(0), pmt::intern("tuneInfo"), new_tag);
             }
             if (offsets.size() > 0) {

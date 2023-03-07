@@ -18,6 +18,7 @@ class overlapping_stream_to_vec_cc_impl : public overlapping_stream_to_vec_cc
 private:
     int d_vector_size;
     int d_overlap;
+    bool d_debug;
     long d_counter;
     int d_sid;
     int d_unconsumed;
