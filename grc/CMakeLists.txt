@@ -5,9 +5,8 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
-
 install(FILES
     aggmux_hold_rewrite_tags_cc.block.yml
     aggmux_overlapping_stream_to_vec_cc.block.yml
-    aggmux_aggr_and_mux_vff.block.yml DESTINATION share/gnuradio/grc/blocks
+    aggmux_usrp_aggregate_vcc.block.yml DESTINATION share/gnuradio/grc/blocks
 )

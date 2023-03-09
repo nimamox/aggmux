@@ -13,5 +13,5 @@ install(FILES
     api.h
     hold_rewrite_tags_cc.h
     overlapping_stream_to_vec_cc.h
-    aggr_and_mux_vff.h DESTINATION include/gnuradio/aggmux
+    usrp_aggregate_vcc.h DESTINATION include/gnuradio/aggmux
 )

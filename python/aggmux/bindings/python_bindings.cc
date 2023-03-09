@@ -23,7 +23,7 @@ namespace py = pybind11;
 // BINDING_FUNCTION_PROTOTYPES(
     void bind_hold_rewrite_tags_cc(py::module& m);
     void bind_overlapping_stream_to_vec_cc(py::module& m);
-    void bind_aggr_and_mux_vff(py::module& m);
+    void bind_usrp_aggregate_vcc(py::module& m);
 // ) END BINDING_FUNCTION_PROTOTYPES
 
 
@@ -54,6 +54,6 @@ PYBIND11_MODULE(aggmux_python, m)
     // BINDING_FUNCTION_CALLS(
     bind_hold_rewrite_tags_cc(m);
     bind_overlapping_stream_to_vec_cc(m);
-    bind_aggr_and_mux_vff(m);
+    bind_usrp_aggregate_vcc(m);
     // ) END BINDING_FUNCTION_CALLS
 }

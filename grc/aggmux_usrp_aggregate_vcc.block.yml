@@ -1,10 +1,10 @@
-id: aggmux_aggr_and_mux_vff
-label: aggr_and_mux_vff
+id: aggmux_usrp_aggregate_vcc
+label: usrp_aggregate_vcc
 category: '[aggmux]'
 
 templates:
   imports: from gnuradio import aggmux
-  make: aggmux.aggr_and_mux_vff(${num_usrps}, ${num_shs}, ${usrp_vector_size}, ${sh_vector_size}, ${out_vector_size}, ${max_update_freq}, ${modalities}, ${debug})
+  make: aggmux.usrp_aggregate_vcc(${vector_size}, ${max_update_freq}, ${modalities}, ${sid}, ${debug})
 
 #  Make one 'parameters' list entry for every parameter you want settable from the GUI.
 #     Keys include:
@@ -16,7 +16,7 @@ parameters:
 - id: parametername_replace_me
   label: FIX ME:
   dtype: string
-  default: You need to fill in your grc/aggmux_aggr_and_mux_vff.block.yaml
+  default: You need to fill in your grc/aggmux_usrp_aggregate_vcc.block.yaml
 #- id: ...
 #  label: ...
 #  dtype: ...

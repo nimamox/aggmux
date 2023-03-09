@@ -13,8 +13,8 @@
 /* If manual edits are made, the following tags should be modified accordingly.    */
 /* BINDTOOL_GEN_AUTOMATIC(0)                                                       */
 /* BINDTOOL_USE_PYGCCXML(0)                                                        */
-/* BINDTOOL_HEADER_FILE(aggr_and_mux_vff.h)                                        */
-/* BINDTOOL_HEADER_FILE_HASH(c0cc578d7a0d0dd78e5a2a12f9c7d884)                     */
+/* BINDTOOL_HEADER_FILE(usrp_aggregate_vcc.h)                                        */
+/* BINDTOOL_HEADER_FILE_HASH(48e05e154d8c3819b70f2abebbe4771a)                     */
 /***********************************************************************************/
 
 #include <pybind11/complex.h>
@@ -23,21 +23,21 @@
 
 namespace py = pybind11;
 
-#include <gnuradio/aggmux/aggr_and_mux_vff.h>
+#include <gnuradio/aggmux/usrp_aggregate_vcc.h>
 // pydoc.h is automatically generated in the build directory
-#include <aggr_and_mux_vff_pydoc.h>
+#include <usrp_aggregate_vcc_pydoc.h>
 
-void bind_aggr_and_mux_vff(py::module& m)
+void bind_usrp_aggregate_vcc(py::module& m)
 {
 
-    using aggr_and_mux_vff    = gr::aggmux::aggr_and_mux_vff;
+    using usrp_aggregate_vcc    = gr::aggmux::usrp_aggregate_vcc;
 
 
-    py::class_<aggr_and_mux_vff, gr::block, gr::basic_block,
-        std::shared_ptr<aggr_and_mux_vff>>(m, "aggr_and_mux_vff", D(aggr_and_mux_vff))
+    py::class_<usrp_aggregate_vcc, gr::block, gr::basic_block,
+        std::shared_ptr<usrp_aggregate_vcc>>(m, "usrp_aggregate_vcc", D(usrp_aggregate_vcc))
 
-        .def(py::init(&aggr_and_mux_vff::make),
-           D(aggr_and_mux_vff,make)
+        .def(py::init(&usrp_aggregate_vcc::make),
+           D(usrp_aggregate_vcc,make)
         )
         
 

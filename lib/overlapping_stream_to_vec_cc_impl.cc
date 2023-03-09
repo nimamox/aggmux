@@ -174,41 +174,6 @@ int overlapping_stream_to_vec_cc_impl::general_work(
     if (d_debug)
         std::cout << "~ " << d_counter << "\tvecs produced: " << vecs_to_produce << std::endl;
     return vecs_to_produce;
-
-
-    //    int vecs_to_produce = noutput_items;
-    //    while (vecs_to_produce > 0) {
-    //        if (d_vector_size + (d_vector_size - d_overlap) * (vecs_to_produce - 1) >
-    //            to_consume + (d_buff_filled ? d_overlap : 0)) {
-    //            vecs_to_produce--;
-    //        } else {
-    //            break;
-    //        }
-    //    }
-    //
-    //    int ind = 0;
-    //    for (int i = 0; i < vecs_to_produce; i++) {
-    //        for (int j = 0; j < d_vector_size; j++) {
-    //            ind = i * d_vector_size + j - i * d_overlap;
-    //            if (d_buff_filled && ind < d_overlap) {
-    //                out[i * d_vector_size + j] = d_buffer[ind];
-    //            } else {
-    //                out[i * d_vector_size + j] = in[d_buff_filled?ind-d_overlap:ind];
-    //            }
-    //        }
-    //    }
-    //
-    //    if (should_buffer) {
-    //        for (int i = 0; i < d_overlap; i++) {
-    //            d_buffer[d_overlap - i] = in[noutput_items - i];
-    //        }
-    //        d_buff_filled = true;
-    //    }
-    //
-    //
-    //    consume_each(to_consume);
-    //    std::cout << "\tvecs produced: " << vecs_to_produce << std::endl;
-    //    return vecs_to_produce;
 }
 
 } /* namespace aggmux */
