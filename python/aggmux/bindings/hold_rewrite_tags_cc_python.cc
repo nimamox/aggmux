@@ -30,30 +30,20 @@ namespace py = pybind11;
 void bind_hold_rewrite_tags_cc(py::module& m)
 {
 
-    using hold_rewrite_tags_cc    = gr::aggmux::hold_rewrite_tags_cc;
+    using hold_rewrite_tags_cc = ::gr::aggmux::hold_rewrite_tags_cc;
 
 
-    py::class_<hold_rewrite_tags_cc, gr::block, gr::basic_block,
-        std::shared_ptr<hold_rewrite_tags_cc>>(m, "hold_rewrite_tags_cc", D(hold_rewrite_tags_cc))
+    py::class_<hold_rewrite_tags_cc,
+               gr::block,
+               gr::basic_block,
+               std::shared_ptr<hold_rewrite_tags_cc>>(
+        m, "hold_rewrite_tags_cc", D(hold_rewrite_tags_cc))
 
         .def(py::init(&hold_rewrite_tags_cc::make),
-           D(hold_rewrite_tags_cc,make)
-        )
-        
-
+             py::arg("debug"),
+             py::arg("sid"),
+             D(hold_rewrite_tags_cc, make))
 
 
         ;
-
-
-
-
 }
-
-
-
-
-
-
-
-

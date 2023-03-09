@@ -15,13 +15,11 @@
  */
 
 
-
- static const char *__doc_gr_aggmux_hold_rewrite_tags_cc = R"doc()doc";
-
-
- static const char *__doc_gr_aggmux_hold_rewrite_tags_cc_hold_rewrite_tags_cc = R"doc()doc";
+static const char* __doc_gr_aggmux_hold_rewrite_tags_cc = R"doc()doc";
 
 
- static const char *__doc_gr_aggmux_hold_rewrite_tags_cc_make = R"doc()doc";
+static const char* __doc_gr_aggmux_hold_rewrite_tags_cc_hold_rewrite_tags_cc =
+    R"doc()doc";
 
-  
+
+static const char* __doc_gr_aggmux_hold_rewrite_tags_cc_make = R"doc()doc";

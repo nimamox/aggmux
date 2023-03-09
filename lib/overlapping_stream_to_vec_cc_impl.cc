@@ -46,13 +46,13 @@ void overlapping_stream_to_vec_cc_impl::forecast(int noutput_items,
 {
     ninput_items_required[0] =
         std::max(d_vector_size + (d_vector_size - d_overlap) * (noutput_items - 1), 1);
-    int a = ninput_items_required[0];
+//    int a = ninput_items_required[0];
     ninput_items_required[0] -= d_unconsumed;
-    int b = ninput_items_required[0];
+//    int b = ninput_items_required[0];
     if (((int)d_buf.size() - d_unconsumed) >= d_overlap) {
         ninput_items_required[0] -= d_overlap;
     }
-    int c = ninput_items_required[0];
+//    int c = ninput_items_required[0];
 //    std::cout << "(" << d_counter << ")1F - out:" << noutput_items
 //              << "\tfinal_inp:" << ninput_items_required[0]
 //              << "\tbufsize:" << d_buf.size() << "\tunconsumed:" << d_unconsumed
