@@ -30,30 +30,23 @@ namespace py = pybind11;
 void bind_usrp_aggregate_vcc(py::module& m)
 {
 
-    using usrp_aggregate_vcc    = gr::aggmux::usrp_aggregate_vcc;
+    using usrp_aggregate_vcc = ::gr::aggmux::usrp_aggregate_vcc;
 
 
-    py::class_<usrp_aggregate_vcc, gr::block, gr::basic_block,
-        std::shared_ptr<usrp_aggregate_vcc>>(m, "usrp_aggregate_vcc", D(usrp_aggregate_vcc))
+    py::class_<usrp_aggregate_vcc,
+               gr::block,
+               gr::basic_block,
+               std::shared_ptr<usrp_aggregate_vcc>>(
+        m, "usrp_aggregate_vcc", D(usrp_aggregate_vcc))
 
         .def(py::init(&usrp_aggregate_vcc::make),
-           D(usrp_aggregate_vcc,make)
-        )
-        
-
+             py::arg("vector_size") = 1024,
+             py::arg("max_update_freq") = 15,
+             py::arg("modalities") = 7,
+             py::arg("sid") = 0,
+             py::arg("debug") = false,
+             D(usrp_aggregate_vcc, make))
 
 
         ;
-
-
-
-
 }
-
-
-
-
-
-
-
-

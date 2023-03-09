@@ -15,13 +15,10 @@
  */
 
 
-
- static const char *__doc_gr_aggmux_usrp_aggregate_vcc = R"doc()doc";
-
-
- static const char *__doc_gr_aggmux_usrp_aggregate_vcc_usrp_aggregate_vcc = R"doc()doc";
+static const char* __doc_gr_aggmux_usrp_aggregate_vcc = R"doc()doc";
 
 
- static const char *__doc_gr_aggmux_usrp_aggregate_vcc_make = R"doc()doc";
+static const char* __doc_gr_aggmux_usrp_aggregate_vcc_usrp_aggregate_vcc = R"doc()doc";
 
-  
+
+static const char* __doc_gr_aggmux_usrp_aggregate_vcc_make = R"doc()doc";
