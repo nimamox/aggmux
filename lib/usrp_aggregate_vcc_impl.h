@@ -18,11 +18,15 @@ class usrp_aggregate_vcc_impl : public usrp_aggregate_vcc
 {
 private:
     int d_vector_size;
+    int d_out_vector_size;
     int d_max_update_freq;
     int d_modalities;
     int d_sid;
     bool d_debug;
     long d_counter;
+    int d_num_modalities;
+    float *d_aggs;
+    int d_buf_filled_vecs;
 
     std::vector<float*> d_FFT_max;
     std::vector<float*> d_FFT_sum;
@@ -37,10 +41,14 @@ private:
     gr::high_res_timer_type d_interval;
 
     std::deque<float*> d_out_queue;
+//    std::deque<float*> d_out_queue_ptrs;
+
+    bool d_initFlag;
+//    void push_to_queue
 
 public:
     usrp_aggregate_vcc_impl(
-        int vector_size, int max_update_freq, int modalities, int sid, bool debug);
+        int vector_size, int out_vector_size, int max_update_freq, int modalities, int sid, bool debug);
     ~usrp_aggregate_vcc_impl();
 
     // Where all the action really happens

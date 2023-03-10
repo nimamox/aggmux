@@ -33,6 +33,7 @@ public:
      * creating new instances.
      */
     static sptr make(int vector_size = 1024,
+                     int out_vector_size = 512,
                      int max_update_freq = 15,
                      int modalities = 7,
                      int sid = 0,

@@ -41,6 +41,7 @@ void bind_usrp_aggregate_vcc(py::module& m)
 
         .def(py::init(&usrp_aggregate_vcc::make),
              py::arg("vector_size") = 1024,
+             py::arg("out_vector_size") = 512,
              py::arg("max_update_freq") = 15,
              py::arg("modalities") = 7,
              py::arg("sid") = 0,
