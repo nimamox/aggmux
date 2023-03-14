@@ -24,6 +24,8 @@ private:
     int d_unconsumed;
     std::deque<gr_complex> d_buf;
 
+    int noutputs_to_ninputs(int noutput_items);
+
 public:
     overlapping_stream_to_vec_cc_impl(int vector_size, int overlap, bool debug, int sid);
     ~overlapping_stream_to_vec_cc_impl();

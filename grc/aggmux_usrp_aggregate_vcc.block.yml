@@ -12,10 +12,6 @@ parameters:
     label: vector_size
     dtype: int
     default: 1024
-  - id: out_vector_size
-    label: vector_size
-    dtype: int
-    default: 512
   - id: max_update_freq
     label: max_update_freq
     dtype: int

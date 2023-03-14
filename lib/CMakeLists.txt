@@ -14,7 +14,7 @@ list(APPEND aggmux_sources
     hold_rewrite_tags_cc_impl.cc
     overlapping_stream_to_vec_cc_impl.cc
     usrp_aggregate_vcc_impl.cc
-)
+    signalhound_source_impl.cc )
 
 set(aggmux_sources "${aggmux_sources}" PARENT_SCOPE)
 if(NOT aggmux_sources)
@@ -23,7 +23,7 @@ if(NOT aggmux_sources)
 endif(NOT aggmux_sources)
 
 add_library(gnuradio-aggmux SHARED ${aggmux_sources})
-target_link_libraries(gnuradio-aggmux gnuradio::gnuradio-runtime)
+target_link_libraries(gnuradio-aggmux gnuradio::gnuradio-runtime zmq)
 target_include_directories(gnuradio-aggmux
     PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>
     PUBLIC $<INSTALL_INTERFACE:include>

@@ -7,6 +7,7 @@
 
 #include "hold_rewrite_tags_cc_impl.h"
 #include <gnuradio/io_signature.h>
+#include <fmt/format.h>
 
 namespace gr {
 namespace aggmux {
@@ -29,7 +30,9 @@ hold_rewrite_tags_cc_impl::hold_rewrite_tags_cc_impl(bool debug, int sid)
       d_counter(0),
       d_tag_arrived(false),
       d_last_freq(0),
-      d_last_rate(0)
+      d_last_rate(0),
+      d_sid(sid),
+      d_tmp_flag(true)
 {
     set_tag_propagation_policy(TPP_DONT);
 }
@@ -37,7 +40,9 @@ hold_rewrite_tags_cc_impl::hold_rewrite_tags_cc_impl(bool debug, int sid)
 /*
  * Our virtual destructor.
  */
-hold_rewrite_tags_cc_impl::~hold_rewrite_tags_cc_impl() {}
+hold_rewrite_tags_cc_impl::~hold_rewrite_tags_cc_impl() {
+    std::cout << fmt::format("\t** HOLD ({}) - DESTRUCTOR CALLED!", d_sid) << std::endl;
+}
 
 // void hold_rewrite_tags_cc_impl::forecast(int noutput_items,
 //                                          gr_vector_int& ninput_items_required)
@@ -91,6 +96,7 @@ int hold_rewrite_tags_cc_impl::general_work(int noutput_items,
                 d_last_rate = pmt::to_double(
                     pmt::dict_ref(new_tag, pmt::intern("rx_rate"), pmt::PMT_NIL));
                 add_item_tag(0, nitems_written(0), pmt::intern("tuneInfo"), new_tag);
+                std::cout << fmt::format("\t** HOLD ({}) - NEW TAG SENT freq: {}", d_sid, d_last_freq) << std::endl;
             }
             if (offsets.size() > 0) {
                 std::sort(offsets.begin(), offsets.end());

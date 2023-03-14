@@ -13,8 +13,8 @@
 /* If manual edits are made, the following tags should be modified accordingly.    */
 /* BINDTOOL_GEN_AUTOMATIC(0)                                                       */
 /* BINDTOOL_USE_PYGCCXML(0)                                                        */
-/* BINDTOOL_HEADER_FILE(usrp_aggregate_vcc.h)                                        */
-/* BINDTOOL_HEADER_FILE_HASH(48e05e154d8c3819b70f2abebbe4771a)                     */
+/* BINDTOOL_HEADER_FILE(signalhound_source.h)                                        */
+/* BINDTOOL_HEADER_FILE_HASH(d2637feb56e08e52ca42936b00d7fcf9)                     */
 /***********************************************************************************/
 
 #include <pybind11/complex.h>
@@ -23,29 +23,29 @@
 
 namespace py = pybind11;
 
-#include <gnuradio/aggmux/usrp_aggregate_vcc.h>
+#include <gnuradio/aggmux/signalhound_source.h>
 // pydoc.h is automatically generated in the build directory
-#include <usrp_aggregate_vcc_pydoc.h>
+#include <signalhound_source_pydoc.h>
 
-void bind_usrp_aggregate_vcc(py::module& m)
+void bind_signalhound_source(py::module& m)
 {
 
-    using usrp_aggregate_vcc = ::gr::aggmux::usrp_aggregate_vcc;
+    using signalhound_source = ::gr::aggmux::signalhound_source;
 
 
-    py::class_<usrp_aggregate_vcc,
+    py::class_<signalhound_source,
                gr::block,
                gr::basic_block,
-               std::shared_ptr<usrp_aggregate_vcc>>(
-        m, "usrp_aggregate_vcc", D(usrp_aggregate_vcc))
+               std::shared_ptr<signalhound_source>>(
+        m, "signalhound_source", D(signalhound_source))
 
-        .def(py::init(&usrp_aggregate_vcc::make),
-             py::arg("vector_size") = 1024,
-             py::arg("max_update_freq") = 15,
+        .def(py::init(&signalhound_source::make),
+             py::arg("address") = "tcp://0.0.0.0:51665",
+             py::arg("fft_bins") = 1024,
              py::arg("modalities") = 7,
-             py::arg("sid") = 0,
+             py::arg("max_update_freq") = 15,
              py::arg("debug") = false,
-             D(usrp_aggregate_vcc, make))
+             D(signalhound_source, make))
 
 
         ;

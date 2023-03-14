@@ -19,6 +19,8 @@ private:
     long d_counter;
     bool d_tag_arrived;
     double d_last_freq, d_last_rate;
+    int d_sid;
+    bool d_tmp_flag;
 public:
     hold_rewrite_tags_cc_impl(bool debug, int sid);
     ~hold_rewrite_tags_cc_impl();

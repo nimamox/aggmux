@@ -10,6 +10,7 @@
 
 #include <gnuradio/high_res_timer.h>
 #include <gnuradio/aggmux/usrp_aggregate_vcc.h>
+#include <filesystem>
 
 namespace gr {
 namespace aggmux {
@@ -18,7 +19,6 @@ class usrp_aggregate_vcc_impl : public usrp_aggregate_vcc
 {
 private:
     int d_vector_size;
-    int d_out_vector_size;
     int d_max_update_freq;
     int d_modalities;
     int d_sid;
@@ -26,7 +26,7 @@ private:
     long d_counter;
     int d_num_modalities;
     float *d_aggs;
-    int d_buf_filled_vecs;
+    float *d_tmp_agg;
 
     std::vector<float*> d_FFT_max;
     std::vector<float*> d_FFT_sum;
@@ -41,14 +41,17 @@ private:
     gr::high_res_timer_type d_interval;
 
     std::deque<float*> d_out_queue;
-//    std::deque<float*> d_out_queue_ptrs;
 
-    bool d_initFlag;
-//    void push_to_queue
+    bool d_calibRunning;
+    std::filesystem::path d_calibPath;
+    std::ofstream *d_calibDataFile;
+    std::ofstream *d_calibMetadata;
+    double d_calibLastFreq;
+    int d_calibCounter, d_calibFreqCounter;
 
 public:
     usrp_aggregate_vcc_impl(
-        int vector_size, int out_vector_size, int max_update_freq, int modalities, int sid, bool debug);
+        int vector_size, int max_update_freq, int modalities, int sid, bool debug);
     ~usrp_aggregate_vcc_impl();
 
     // Where all the action really happens

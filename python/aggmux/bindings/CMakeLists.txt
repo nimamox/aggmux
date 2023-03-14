@@ -30,7 +30,8 @@ include(GrPybind)
 list(APPEND aggmux_python_files
     hold_rewrite_tags_cc_python.cc
     overlapping_stream_to_vec_cc_python.cc
-    usrp_aggregate_vcc_python.cc python_bindings.cc)
+    usrp_aggregate_vcc_python.cc
+    signalhound_source_python.cc python_bindings.cc)
 
 GR_PYBIND_MAKE_OOT(aggmux
    ../../..

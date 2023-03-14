@@ -1,0 +1,37 @@
+id: aggmux_signalhound_source
+label: signalhound source
+category: '[aggmux]'
+
+templates:
+  imports: from gnuradio import aggmux
+  make: aggmux.signalhound_source(${address}, ${fft_bins}, ${modalities}, ${max_update_freq},
+    ${debug})
+
+parameters:
+  - id: address
+    label: address
+    default: "tcp://0.0.0.0:51665"
+    dtype: string
+  - id: fft_bins
+    label: fft_bins
+    default: 1024
+    dtype: int
+  - id: modalities
+    label: modalities
+    default: 7
+    dtype: int
+  - id: max_update_freq
+    label: max_update_freq
+    default: 15
+    dtype: int
+  - id: debug
+    label: debug
+    dtype: bool
+    default: 'False'
+outputs:
+  - label: out
+    domain: stream
+    dtype: float
+    vlen: ${3 * fft_bins}
+
+file_format: 1
