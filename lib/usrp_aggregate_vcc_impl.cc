@@ -39,6 +39,7 @@ namespace gr {
                   d_debug(debug),
                   d_counter(0),
                   d_FFT_which(0),
+                  d_calibRunning(false),
                   d_calibDataFile(nullptr),
                   d_calibMetadata(nullptr),
                   d_calibCounter(0),
@@ -55,9 +56,8 @@ namespace gr {
 
             d_calibPath = "/tmp/usrp_calib_started.flag";
 
-            d_tic = high_res_timer_now();
-            gr::high_res_timer_type onesec = high_res_timer_tps();
-            d_interval = onesec / (float) d_max_update_freq;
+            d_onesec = high_res_timer_tps();
+            d_interval = d_onesec / (float) d_max_update_freq;
 
             d_last_FreqSrate.push_back(-1);
             for (int j = 0; j < 2; j++) {
@@ -98,6 +98,10 @@ namespace gr {
             auto out = static_cast<output_type *>(output_items[0]);
 
             d_counter++;
+            if (d_counter == 1) {
+                d_next_update = (high_res_timer_now() + 2 * d_onesec) / d_onesec * d_onesec;
+                std::cout << "FIRST UPDATE" << d_next_update << std::endl;
+            }
             std::vector<gr::tag_t> tagVector;
             get_tags_in_range(tagVector, 0, nitems_read(0), nitems_read(0) + ninput_items[0]);
             int remainderOffset = 0;
@@ -191,8 +195,16 @@ namespace gr {
             }
             consume_each(ninput_items[0]);
             gr::high_res_timer_type toc = high_res_timer_now();
-            if ((toc - d_tic) > d_interval) {
-                d_tic = toc;
+//            std::cout << "Time: " << toc << "next_update" << d_next_update << "cond: " << ((toc - d_next_update) > 0) << std::endl;
+            if ((toc - d_next_update) > 0) {
+                int missed = -1;
+                while ((toc - d_next_update) > 0) {
+                    d_next_update += d_interval;
+                    missed++;
+                }
+                if (missed > 0) {
+                    std::cout << "Missed " << missed << " updates" << std::endl;
+                }
                 int selected = d_FFT_which;
                 if (((float) d_FFT_count[selected] / (d_FFT_count[0] + d_FFT_count[1])) < .25) {
                     selected = (selected + 1) % 2;

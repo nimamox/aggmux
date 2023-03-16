@@ -37,8 +37,9 @@ private:
 
     bool d_AvgFlag, d_MaxFlag, d_ThreshFlag;
 
-    gr::high_res_timer_type d_tic;
     gr::high_res_timer_type d_interval;
+    gr::high_res_timer_type d_next_update;
+    gr::high_res_timer_type d_onesec;
 
     std::deque<float*> d_out_queue;
 
