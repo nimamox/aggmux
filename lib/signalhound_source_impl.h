@@ -43,8 +43,9 @@ namespace gr {
 
             fftSweepMsg *d_fftMsg;
 
-            gr::high_res_timer_type d_tic;
             gr::high_res_timer_type d_interval;
+            gr::high_res_timer_type d_next_update;
+            gr::high_res_timer_type d_onesec;
 
             zmq::context_t *d_context;
             zmq::socket_t *d_socket;

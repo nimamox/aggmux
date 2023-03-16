@@ -60,9 +60,8 @@ namespace gr {
             d_socket->connect(address);
             d_socket->setsockopt(ZMQ_SUBSCRIBE, "", 0);
 
-            d_tic = high_res_timer_now();
-            gr::high_res_timer_type onesec = high_res_timer_tps();
-            d_interval = onesec / (float) d_max_update_freq;
+            d_onesec = high_res_timer_tps();
+            d_interval = d_onesec / (float) d_max_update_freq;
 
             d_iter_mean = std::vector<float>(d_fft_bins, 0);
             d_iter_max = std::vector<float>(d_fft_bins, 0);
@@ -72,6 +71,8 @@ namespace gr {
             d_frame_max = std::vector<float>(d_fft_bins, 0);
             d_frame_thresh = std::vector<float>(d_fft_bins, 0);
 
+            d_next_update = (high_res_timer_now() + 2 * d_onesec) / d_onesec * d_onesec;
+            std::cout << "SH FIRST UPDATE" << d_next_update << std::endl;
         }
 
 /*
@@ -120,6 +121,10 @@ namespace gr {
                                                   gr_vector_void_star &output_items) {
             auto out = static_cast<output_type *>(output_items[0]);
             d_counter++;
+//            if (d_counter == 1) {
+//                d_next_update = (high_res_timer_now() + 2 * d_onesec) / d_onesec * d_onesec;
+//                std::cout << "SH FIRST UPDATE" << d_next_update << std::endl;
+//            }
             zmq::message_t msg;
             std::fill(d_frame_mean.begin(), d_frame_mean.end(), 0);
             std::fill(d_frame_max.begin(), d_frame_max.end(), 0);
@@ -127,7 +132,15 @@ namespace gr {
             d_iter_counter = 0;
             while (1) {
                 gr::high_res_timer_type toc = high_res_timer_now();
-                if (toc - d_tic > d_interval) {
+                if (toc - d_next_update > 0) {
+                    int missed = -1;
+                    while (toc - d_next_update > 0) {
+                        d_next_update += d_interval;
+                        missed++;
+                    }
+                    if (missed > 0) {
+                        std::cout << "Missed " << missed << " updates" << std::endl;
+                    }
                     break;
                 }
                 d_iter_counter++;
@@ -237,7 +250,6 @@ namespace gr {
                 m += 1;
             }
 //            std::cout << "d_counter: " << d_counter << "noutput_items: " << noutput_items << std::endl;
-            d_tic = high_res_timer_now();
             return 1;
         }
     } /* namespace aggmux */

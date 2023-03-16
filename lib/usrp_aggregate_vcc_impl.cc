@@ -70,6 +70,9 @@ namespace gr {
                 d_FFT_tune_info[j] = pmt::dict_add(d_FFT_tune_info[j], pmt::intern("rx_freq"), pmt::from_double(-1));
                 d_FFT_tune_info[j] = pmt::dict_add(d_FFT_tune_info[j], pmt::intern("rx_rate"), pmt::from_double(-1));
             }
+
+            d_next_update = (high_res_timer_now() + 2 * d_onesec) / d_onesec * d_onesec;
+            std::cout << d_sid << " SDR FIRST UPDATE" << d_next_update << std::endl;
         }
 
 /*
@@ -98,10 +101,10 @@ namespace gr {
             auto out = static_cast<output_type *>(output_items[0]);
 
             d_counter++;
-            if (d_counter == 1) {
-                d_next_update = (high_res_timer_now() + 2 * d_onesec) / d_onesec * d_onesec;
-                std::cout << "FIRST UPDATE" << d_next_update << std::endl;
-            }
+//            if (d_counter == 1) {
+//                d_next_update = (high_res_timer_now() + 2 * d_onesec) / d_onesec * d_onesec;
+//                std::cout << d_sid << " SDR FIRST UPDATE" << d_next_update << std::endl;
+//            }
             std::vector<gr::tag_t> tagVector;
             get_tags_in_range(tagVector, 0, nitems_read(0), nitems_read(0) + ninput_items[0]);
             int remainderOffset = 0;
