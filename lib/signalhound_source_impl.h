@@ -14,6 +14,10 @@
 #include <gnuradio/high_res_timer.h>
 #include "zmq.hpp"
 
+#include <thread>
+#include <mutex>
+#include <condition_variable>
+
 namespace gr {
     namespace aggmux {
 
@@ -41,14 +45,16 @@ namespace gr {
             uint64_t d_endFreq;
             uint32_t d_numBins;
 
-            fftSweepMsg *d_fftMsg;
+//            fftSweepMsg *d_fftMsg;
 
-            gr::high_res_timer_type d_interval;
-            gr::high_res_timer_type d_next_update;
+            int64_t d_interval;
+            int64_t d_next_update;
             gr::high_res_timer_type d_onesec;
+            gr::high_res_timer_type d_toc;
 
             zmq::context_t *d_context;
             zmq::socket_t *d_socket;
+            zmq::message_t *d_msg;
 
             std::vector<float> linspace(float a, float b, uint32_t N);
 
@@ -57,7 +63,8 @@ namespace gr {
             std::vector<float> d_interm_pos;
             std::vector<float> d_out_pos;
 
-            std::vector<float> d_interm_bins;
+//            std::vector<float> d_interm_bins;
+            std::vector<float> * interm_bins_ptr;
             std::vector<float> d_iter_max, d_iter_mean, d_iter_thresh;
             std::vector<float> d_frame_max, d_frame_mean, d_frame_thresh;
 
@@ -73,7 +80,19 @@ namespace gr {
 
             float lerp(float x, float x1, float x2, float y1, float y2);
 
-            std::vector<float> interp(std::vector<float> &xp, std::vector<float> &fp, std::vector<float> &x);
+            void interp_indices(const std::vector<float> &x, const std::vector<float> &xp, std::vector<int> &ind);
+            void interp2(const std::vector<int> &ind, const std::vector<float> &xp, const std::vector<float> &fp, const std::vector<float> &x, std::vector<float> &fp_interp);
+
+            void interp(const std::vector<float> &xp, const std::vector<float> &fp, const std::vector<float> &x, std::vector<float> &fp_interp);
+
+            bool m_stop_request;
+            bool m_running;
+            std::mutex m_mutex;
+            std::deque<std::vector<float>*> m_binQueue;
+            float *binData;
+            void producerThread();
+            std::thread m_producerThread;
+            std::condition_variable m_cond;
 
         public:
             signalhound_source_impl(const std::string &address,

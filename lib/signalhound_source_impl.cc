@@ -11,6 +11,7 @@
 #include <fmt/format.h>
 #include <bitset>
 #include <numeric>
+#include <immintrin.h>
 
 namespace gr {
     namespace aggmux {
@@ -71,8 +72,10 @@ namespace gr {
             d_frame_max = std::vector<float>(d_fft_bins, 0);
             d_frame_thresh = std::vector<float>(d_fft_bins, 0);
 
-            d_next_update = (high_res_timer_now() + 2 * d_onesec) / d_onesec * d_onesec;
+            d_next_update = (high_res_timer_now() + 3 * d_onesec) / d_onesec * d_onesec;
             std::cout << "SH FIRST UPDATE" << d_next_update << std::endl;
+
+            m_producerThread = std::thread(&signalhound_source_impl::producerThread, this);
         }
 
 /*
@@ -98,21 +101,72 @@ namespace gr {
             return y1 + (x - x1) * (y2 - y1) / (x2 - x1);
         }
 
-        std::vector<float> signalhound_source_impl::interp(std::vector<float> &xp, std::vector<float> &fp, std::vector<float> &x) {
-            std::vector<float> fp_interp;
-            fp_interp.reserve(x.size());
+        void signalhound_source_impl::interp_indices(const std::vector<float> &x, const std::vector<float> &xp,
+                                                     std::vector<int> &ind) {
+            ind.reserve(x.size());
             for (size_t i = 0; i < x.size(); i++) {
                 auto it = std::upper_bound(xp.begin(), xp.end(), x[i]);
                 if (it == xp.begin()) {
-                    fp_interp.push_back(fp.front());
+                    ind.push_back(-1);
                 } else if (it == xp.end()) {
-                    fp_interp.push_back(fp.back());
+                    ind.push_back(-2);
                 } else {
-                    auto idx = std::distance(xp.begin(), it);
-                    fp_interp.push_back(lerp(x[i], xp[idx - 1], xp[idx], fp[idx - 1], fp[idx]));
+                    ind.push_back(std::distance(xp.begin(), it));
                 }
             }
-            return fp_interp;
+        }
+
+        void signalhound_source_impl::interp2(const std::vector<int> &ind, const std::vector<float> &xp,
+                                              const std::vector<float> &fp, const std::vector<float> &x,
+                                              std::vector<float> &fp_interp) {
+            fp_interp.reserve(x.size());
+            for (size_t i = 0; i < x.size(); i++) {
+                if (ind[i] == -1) {
+                    fp_interp.push_back(fp.front());
+                } else if (ind[i] == -2) {
+                    fp_interp.push_back(fp.back());
+                } else {
+                    fp_interp.push_back(lerp(x[i], xp[ind[i] - 1], xp[ind[i]], fp[ind[i] - 1], fp[ind[i]]));
+                }
+            }
+        }
+
+        void signalhound_source_impl::producerThread() {
+            zmq::message_t msg;
+            fftSweepMsg *fftMsg;
+            std::vector<float> *interm_bins;
+            std::vector<int> interp_ind;
+            while (true) {
+                auto res = d_socket->recv(msg);
+                if (res) {
+                    fftMsg = (fftSweepMsg *) msg.data();
+                    std::vector<float> orig_bins(fftMsg->fftData, fftMsg->fftData + fftMsg->numFftBins);
+
+                    if (d_initFlag) {
+                        d_initFlag = false;
+                        d_startFreq = fftMsg->startFrequency;
+                        d_endFreq = fftMsg->endFrequency;
+                        d_numBins = fftMsg->numFftBins;
+                        float offset = (d_endFreq - d_startFreq) / (float) d_numBins / 2.0;
+                        d_orig_pos = linspace(d_startFreq + offset, d_endFreq - offset, d_numBins);
+                        d_out_pos = linspace(100000000, 6000000000, d_fft_bins);
+                        d_interm_interval = std::ceil((float) d_numBins / (float) d_fft_bins);
+                        d_interm_pos = linspace(100000000, 6000000000, d_interm_interval * d_fft_bins);
+                        interp_indices(d_interm_pos, d_orig_pos, interp_ind);
+                        std::cout << "SH PRODUCER INITIALIZED" << std::endl;
+                    }
+                    interm_bins = new std::vector<float>();
+                    interp2(interp_ind, d_orig_pos, orig_bins, d_interm_pos, *interm_bins);
+//                    interp(d_orig_pos, orig_bins, d_interm_pos, *interm_bins);
+                    std::lock_guard<std::mutex> lock(m_mutex);
+                    m_binQueue.push_back(interm_bins);
+                    m_cond.notify_one();
+//                    std::cout << "SH PRODUCER THREAD PRODUCED " << fftMsg->numFftBins << " " << interm_bins->size() << std::endl;
+                } else {
+                    std::cout << "SH RECV ERROR" << std::endl;
+                    return;
+                }
+            }
         }
 
         int signalhound_source_impl::general_work(int noutput_items,
@@ -139,29 +193,38 @@ namespace gr {
                         missed++;
                     }
                     if (missed > 0) {
-                        std::cout << "Missed " << missed << " updates" << std::endl;
+                        std::cout << "SH Missed " << missed << " updates" << std::endl;
                     }
                     break;
                 }
                 d_iter_counter++;
-                auto res = d_socket->recv(msg);
-                if (!res) {
-                    throw std::runtime_error("Error receiving data from SignalHound");
-                }
-                d_fftMsg = (fftSweepMsg *) msg.data();
-                std::vector<float> orig_bins(d_fftMsg->fftData, d_fftMsg->fftData + d_fftMsg->numFftBins);
-                if (d_initFlag) {
-                    d_initFlag = false;
-                    d_startFreq = d_fftMsg->startFrequency;
-                    d_endFreq = d_fftMsg->endFrequency;
-                    d_numBins = d_fftMsg->numFftBins;
-                    float offset = (d_endFreq - d_startFreq) / (float) d_numBins / 2.0;
-                    d_orig_pos = linspace(d_startFreq + offset, d_endFreq - offset, d_numBins);
-                    d_out_pos = linspace(100000000, 6000000000, d_fft_bins);
-                    d_interm_interval = std::ceil((float) d_numBins / (float) d_fft_bins);
-                    d_interm_pos = linspace(100000000, 6000000000, d_interm_interval * d_fft_bins);
-
-                }
+//                std::vector<float> *bins;
+                std::unique_lock<std::mutex> lock(m_mutex);
+                m_cond.wait(lock, [this] { return !m_binQueue.empty(); });
+//                std::cout << fmt::format("{} SH CONSUMER THREAD CONSUMED! \t qsize: {}", d_iter_counter, m_binQueue.size())
+//                          << std::endl;
+                interm_bins_ptr = m_binQueue.front();
+                m_binQueue.pop_front();
+                lock.unlock();
+//                auto res = d_socket->recv(msg);
+//                if (!res) {
+//                    throw std::runtime_error("Error receiving data from SignalHound");
+//                }
+//                d_fftMsg = (fftSweepMsg *) msg.data();
+//                std::vector<float> orig_bins(d_fftMsg->fftData, d_fftMsg->fftData + d_fftMsg->numFftBins);
+//                std::vector<float> orig_bins = *bins;
+//                if (d_initFlag) {
+//                    d_initFlag = false;
+//                    d_startFreq = d_fftMsg->startFrequency;
+//                    d_endFreq = d_fftMsg->endFrequency;
+//                    d_numBins = d_fftMsg->numFftBins;
+//                    float offset = (d_endFreq - d_startFreq) / (float) d_numBins / 2.0;
+//                    d_orig_pos = linspace(d_startFreq + offset, d_endFreq - offset, d_numBins);
+//                    d_out_pos = linspace(100000000, 6000000000, d_fft_bins);
+//                    d_interm_interval = std::ceil((float) d_numBins / (float) d_fft_bins);
+//                    d_interm_pos = linspace(100000000, 6000000000, d_interm_interval * d_fft_bins);
+//
+//                }
                 bool calibFlag = std::filesystem::exists(d_calibPath);
                 if (calibFlag && !d_calibRunning) {
                     d_calibRunning = true;
@@ -181,10 +244,12 @@ namespace gr {
                     std::cout << "Initializing thresholds" << std::endl;
                     d_thresholds = static_cast<std::vector<float> *>(malloc(sizeof(std::vector<float>)));
                     new(d_thresholds) std::vector<float>(d_interm_pos.size(), -97);
-                    if (std::filesystem::exists(fmt::format("/home/nima/PermanentDir/signalhound_thresholds_{}.bin", d_fft_bins))) { ;
+                    if (std::filesystem::exists(
+                            fmt::format("/home/nima/PermanentDir/signalhound_thresholds_{}.bin", d_fft_bins))) { ;
                         std::cout << "Getting thresholds from file" << std::endl;
                         try {
-                            std::ifstream ifs(fmt::format("/home/nima/PermanentDir/signalhound_thresholds_{}.bin", d_fft_bins), std::ios::binary);
+                            std::ifstream ifs(fmt::format("/home/nima/PermanentDir/signalhound_thresholds_{}.bin", d_fft_bins),
+                                              std::ios::binary);
                             float f;
                             int i = 0;
                             while (ifs.read(reinterpret_cast<char *>(&f), sizeof(float))) {
@@ -197,25 +262,25 @@ namespace gr {
                         }
                     }
                 }
-                if (d_calibRunning) {
-                    if (d_iter_counter % 3 == 0) {
-                        d_calibDataFile->write((char *) d_fftMsg->fftData, d_fftMsg->numFftBins * sizeof(float));
-                        d_calibMetadata->write((char *) &d_fftMsg->startFrequency, sizeof(uint64_t));
-                        d_calibMetadata->write((char *) &d_fftMsg->endFrequency, sizeof(uint64_t));
-                        d_calibMetadata->write((char *) &d_fftMsg->numFftBins, sizeof(uint32_t));
-                        d_calibCounter++;
-                    }
-                    if (d_calibCounter > 1000) {
-                        try {
-                            std::filesystem::remove(d_calibPath);
-                        } catch (std::filesystem::filesystem_error &e) {
-                            std::cout << "Error removing calibration flag file: " << e.what() << std::endl;
-                        }
-                    }
-                }
-                d_interm_bins = interp(d_orig_pos, orig_bins, d_interm_pos);
+//                if (d_calibRunning) {
+//                    if (d_iter_counter % 3 == 0) {
+//                        d_calibDataFile->write((char *) d_fftMsg->fftData, d_fftMsg->numFftBins * sizeof(float));
+//                        d_calibMetadata->write((char *) &d_fftMsg->startFrequency, sizeof(uint64_t));
+//                        d_calibMetadata->write((char *) &d_fftMsg->endFrequency, sizeof(uint64_t));
+//                        d_calibMetadata->write((char *) &d_fftMsg->numFftBins, sizeof(uint32_t));
+//                        d_calibCounter++;
+//                    }
+//                    if (d_calibCounter > 1000) {
+//                        try {
+//                            std::filesystem::remove(d_calibPath);
+//                        } catch (std::filesystem::filesystem_error &e) {
+//                            std::cout << "Error removing calibration flag file: " << e.what() << std::endl;
+//                        }
+//                    }
+//                }
+//                d_interm_bins = interp(d_orig_pos, orig_bins, d_interm_pos);
                 for (int i = 0; i < d_fft_bins; i++) {
-                    auto start = d_interm_bins.begin() + i * d_interm_interval;
+                    auto start = interm_bins_ptr->begin() + i * d_interm_interval;
                     auto end = std::next(start, d_interm_interval);
                     auto thresholdStart = d_thresholds->begin() + i * d_interm_interval;
                     d_iter_max[i] = *std::max_element(start, end);
@@ -224,8 +289,11 @@ namespace gr {
                                                    [](float a, float b) { return a >= b; });
                     d_iter_thresh[i] = static_cast<float>(count) / d_interm_interval;
                 }
-                std::transform(d_frame_mean.begin(), d_frame_mean.end(), d_iter_mean.begin(), d_frame_mean.begin(), std::plus<float>());
-                std::transform(d_frame_max.begin(), d_frame_max.end(), d_iter_max.begin(), d_frame_max.begin(), std::plus<float>());
+                delete interm_bins_ptr;
+                std::transform(d_frame_mean.begin(), d_frame_mean.end(), d_iter_mean.begin(), d_frame_mean.begin(),
+                               std::plus<float>());
+                std::transform(d_frame_max.begin(), d_frame_max.end(), d_iter_max.begin(), d_frame_max.begin(),
+                               std::plus<float>());
                 std::transform(d_frame_thresh.begin(), d_frame_thresh.end(), d_iter_thresh.begin(), d_frame_thresh.begin(),
                                std::plus<float>());
             }

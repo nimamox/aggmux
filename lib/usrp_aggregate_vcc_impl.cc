@@ -65,14 +65,18 @@ namespace gr {
                 memset(d_FFT_max[j], 0, sizeof(float) * d_vector_size);
                 d_FFT_sum.push_back((float *) volk_malloc(sizeof(float) * d_vector_size, volk_get_alignment()));
                 memset(d_FFT_sum[j], 0, sizeof(float) * d_vector_size);
+                d_FFT_thresh_count.push_back((float *) volk_malloc(sizeof(float) * d_vector_size, volk_get_alignment()));
+                memset(d_FFT_thresh_count[j], 0, sizeof(float) * d_vector_size);
                 d_FFT_count.push_back(0);
                 d_FFT_tune_info.push_back(pmt::make_dict());
                 d_FFT_tune_info[j] = pmt::dict_add(d_FFT_tune_info[j], pmt::intern("rx_freq"), pmt::from_double(-1));
                 d_FFT_tune_info[j] = pmt::dict_add(d_FFT_tune_info[j], pmt::intern("rx_rate"), pmt::from_double(-1));
             }
 
-            d_next_update = (high_res_timer_now() + 2 * d_onesec) / d_onesec * d_onesec;
-            std::cout << d_sid << " SDR FIRST UPDATE" << d_next_update << std::endl;
+            d_default_thresh_val = pow(10, -94.0 / 10);
+
+            d_next_update = (high_res_timer_now() + 3 * d_onesec) / d_onesec * d_onesec;
+            std::cout << d_sid << " SDR FIRST UPDATE: " << d_next_update << std::endl;
         }
 
 /*
@@ -85,6 +89,7 @@ namespace gr {
             for (int j = 0; j < 2; j++) {
                 volk_free(d_FFT_max[j]);
                 volk_free(d_FFT_sum[j]);
+                volk_free(d_FFT_thresh_count[j]);
             }
         }
 
@@ -150,6 +155,15 @@ namespace gr {
                                                         d_vector_size);
                                 }
                             }
+                            if (d_ThreshFlag) {
+                                for (int j = remainderOffset; j < curOffset; j++) {
+                                    for (int k = 0; k < d_vector_size; k++) {
+                                        if (in[j * d_vector_size + k] > d_default_thresh_val) {
+                                            d_FFT_thresh_count[d_FFT_which][k]++;
+                                        }
+                                    }
+                                }
+                            }
                         }
                         d_FFT_which = (d_FFT_which + 1) % 2;
                         d_FFT_tune_info[d_FFT_which] = tagval;
@@ -195,6 +209,15 @@ namespace gr {
                         volk_32f_x2_max_32f(d_FFT_max[d_FFT_which], d_FFT_max[d_FFT_which], in + j * d_vector_size, d_vector_size);
                     }
                 }
+                if (d_ThreshFlag) {
+                    for (int j = remainderOffset; j < curOffset; j++) {
+                        for (int k = 0; k < d_vector_size; k++) {
+                            if (in[j * d_vector_size + k] > d_default_thresh_val) {
+                                d_FFT_thresh_count[d_FFT_which][k]++;
+                            }
+                        }
+                    }
+                }
             }
             consume_each(ninput_items[0]);
             gr::high_res_timer_type toc = high_res_timer_now();
@@ -226,8 +249,11 @@ namespace gr {
                     std::cout << fmt::format("\t** AGG ({}) - NEW TAG SENT freq: {}", d_sid, new_freq) << std::endl;
                 }
                 int m = 0;
-                if (d_AvgFlag || d_ThreshFlag) {
+                if (d_AvgFlag) {
                     volk_32f_s32f_multiply_32f(d_FFT_sum[selected], d_FFT_sum[selected], 1.0 / d_FFT_count[selected], d_vector_size);
+                }
+                if (d_ThreshFlag) {
+                    volk_32f_s32f_multiply_32f(d_FFT_thresh_count[selected], d_FFT_thresh_count[selected], 1.0 / d_FFT_count[selected], d_vector_size);
                 }
                 if (d_AvgFlag) {
                     for (int i = 0; i < d_vector_size; i++) {
@@ -243,12 +269,15 @@ namespace gr {
                 }
                 if (d_ThreshFlag) {
                     for (int i = 0; i < d_vector_size; i++) {
-                        out[m * d_vector_size + i] = 10 * log10(d_FFT_sum[selected][i] + 1e-20);
+//                        out[m * d_vector_size + i] = 10 * log10(d_FFT_sum[selected][i] + 1e-20);
+                        out[m * d_vector_size + i] = d_FFT_thresh_count[selected][i];
                     }
                     m++;
                 }
-                if (d_AvgFlag || d_ThreshFlag)
+                if (d_AvgFlag)
                     memset(d_FFT_sum[selected], 0, sizeof(float) * d_vector_size);
+                if (d_ThreshFlag)
+                    memset(d_FFT_thresh_count[selected], 0, sizeof(float) * d_vector_size);
                 if (d_MaxFlag)
                     memset(d_FFT_max[selected], -1, sizeof(float) * d_vector_size);
                 d_FFT_count[selected] = 0;

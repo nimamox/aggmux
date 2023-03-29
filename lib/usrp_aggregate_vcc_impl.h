@@ -27,10 +27,12 @@ private:
     int d_num_modalities;
     float *d_aggs;
     float *d_tmp_agg;
+    float d_default_thresh_val;
 
     std::vector<float*> d_FFT_max;
     std::vector<float*> d_FFT_sum;
     std::vector<float> d_FFT_count;
+    std::vector<float*> d_FFT_thresh_count;
     std::vector<pmt::pmt_t> d_FFT_tune_info;
     std::vector<double> d_last_FreqSrate;
     int d_FFT_which;
